@@ -7,16 +7,12 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.learning.photogallery.dummy.DummyContent;
-import com.learning.photogallery.dummy.DummyContent.DummyItem;
-
-import java.io.IOException;
-import java.util.List;
+import com.learning.photogallery.gallery.GalleryContent;
+import com.learning.photogallery.gallery.GalleryContent.GalleryItem;
 
 public class PhotoGalleryFragment extends Fragment {
     public static final String TAG = "PhotoGalleryFragment";
@@ -64,7 +60,7 @@ public class PhotoGalleryFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyFlickrPhotoRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            recyclerView.setAdapter(new MyFlickrPhotoRecyclerViewAdapter(GalleryContent.ITEMS, mListener));
         }
         return view;
     }
@@ -100,6 +96,6 @@ public class PhotoGalleryFragment extends Fragment {
 
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(GalleryItem item);
     }
 }

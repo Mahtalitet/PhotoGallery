@@ -6,16 +6,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.learning.photogallery.dummy.DummyContent.DummyItem;
+import com.learning.photogallery.gallery.GalleryContent.GalleryItem;
 
 import java.util.List;
 
 public class MyFlickrPhotoRecyclerViewAdapter extends RecyclerView.Adapter<MyFlickrPhotoRecyclerViewAdapter.ViewHolder> {
 
-    private final List<DummyItem> mValues;
+    private final List<GalleryItem> mValues;
     private final PhotoGalleryFragment.OnListFragmentInteractionListener mListener;
 
-    public MyFlickrPhotoRecyclerViewAdapter(List<DummyItem> items, PhotoGalleryFragment.OnListFragmentInteractionListener listener) {
+    public MyFlickrPhotoRecyclerViewAdapter(List<GalleryItem> items, PhotoGalleryFragment.OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -30,8 +30,8 @@ public class MyFlickrPhotoRecyclerViewAdapter extends RecyclerView.Adapter<MyFli
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mIdView.setText(mValues.get(position).id);
-        holder.mContentView.setText(mValues.get(position).content);
+        holder.mIdView.setText(mValues.get(position).mId);
+        holder.mContentView.setText(mValues.get(position).mUrl);
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,7 +52,7 @@ public class MyFlickrPhotoRecyclerViewAdapter extends RecyclerView.Adapter<MyFli
         public final View mView;
         public final TextView mIdView;
         public final TextView mContentView;
-        public DummyItem mItem;
+        public GalleryItem mItem;
 
         public ViewHolder(View view) {
             super(view);
