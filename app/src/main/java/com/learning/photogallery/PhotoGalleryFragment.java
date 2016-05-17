@@ -1,11 +1,13 @@
 package com.learning.photogallery;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,16 +15,11 @@ import android.view.ViewGroup;
 import com.learning.photogallery.dummy.DummyContent;
 import com.learning.photogallery.dummy.DummyContent.DummyItem;
 
+import java.io.IOException;
 import java.util.List;
 
-/**
- * A fragment representing a list of Items.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
- * interface.
- */
 public class PhotoGalleryFragment extends Fragment {
-
+    public static final String TAG = "PhotoGalleryFragment";
     public static final int PHOTO_GALLERY_GRID_COUNT = 3;
 
 
@@ -33,7 +30,6 @@ public class PhotoGalleryFragment extends Fragment {
     public PhotoGalleryFragment() {
     }
 
-    // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
     public static PhotoGalleryFragment newInstance(int columnCount) {
         PhotoGalleryFragment fragment = new PhotoGalleryFragment();
@@ -50,6 +46,8 @@ public class PhotoGalleryFragment extends Fragment {
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
+
+        new FetchItemsTask().execute();
     }
 
     @Override
@@ -88,6 +86,24 @@ public class PhotoGalleryFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
+
+    private class FetchItemsTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            try {
+                String result = new FlickrFetchr().getUrl("http://www.google.com");
+                Log.i(TAG, "Fetched contens of URL: "+result);
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e(TAG, "Failed to fetch URL: ", e);
+            }
+
+            return null;
+        }
+    }
+
 
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
