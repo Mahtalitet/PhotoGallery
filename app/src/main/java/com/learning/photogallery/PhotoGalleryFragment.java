@@ -12,7 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.learning.photogallery.gallery.GalleryContent;
-import com.learning.photogallery.gallery.GalleryContent.GalleryItem;
+import com.learning.photogallery.gallery.GalleryItem;
 
 public class PhotoGalleryFragment extends Fragment {
     public static final String TAG = "PhotoGalleryFragment";

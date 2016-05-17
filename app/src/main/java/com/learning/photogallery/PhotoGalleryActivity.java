@@ -3,6 +3,7 @@ package com.learning.photogallery;
 import android.support.v4.app.Fragment;
 
 import com.learning.photogallery.gallery.GalleryContent;
+import com.learning.photogallery.gallery.GalleryItem;
 
 public class PhotoGalleryActivity extends SingleFragmentActivity implements PhotoGalleryFragment.OnListFragmentInteractionListener {
 
@@ -23,7 +24,7 @@ public class PhotoGalleryActivity extends SingleFragmentActivity implements Phot
     }
 
     @Override
-    public void onListFragmentInteraction(GalleryContent.GalleryItem item) {
+    public void onListFragmentInteraction(GalleryItem item) {
 
     }
 }

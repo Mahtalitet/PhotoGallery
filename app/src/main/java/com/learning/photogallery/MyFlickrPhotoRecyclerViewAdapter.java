@@ -6,7 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.learning.photogallery.gallery.GalleryContent.GalleryItem;
+
+import com.learning.photogallery.gallery.GalleryItem;
 
 import java.util.List;
 
