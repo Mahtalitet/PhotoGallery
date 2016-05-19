@@ -17,16 +17,10 @@ import java.util.List;
 
 public class MyFlickrPhotoRecyclerViewAdapter extends RecyclerView.Adapter<MyFlickrPhotoRecyclerViewAdapter.ViewHolder> {
 
-    private final TypedValue mTypedValue = new TypedValue();
-    private int mBackground;
-
     private final List<GalleryItem> mValues;
     private final PhotoGalleryFragment.OnListFragmentInteractionListener mListener;
 
-    public MyFlickrPhotoRecyclerViewAdapter(Context context, List<GalleryItem> items, PhotoGalleryFragment.OnListFragmentInteractionListener listener) {
-        context.getTheme().resolveAttribute(R.attr.selectableItemBackground, mTypedValue, true);
-        mBackground = mTypedValue.resourceId;
-
+    public MyFlickrPhotoRecyclerViewAdapter(List<GalleryItem> items, PhotoGalleryFragment.OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
@@ -35,7 +29,6 @@ public class MyFlickrPhotoRecyclerViewAdapter extends RecyclerView.Adapter<MyFli
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.fragment_flickrphoto, parent, false);
-//        view.setBackgroundResource(mBackground);
         return new ViewHolder(view);
     }
 
