@@ -56,6 +56,11 @@ public class MyFlickrPhotoRecyclerViewAdapter extends RecyclerView.Adapter<MyFli
         return mValues.size();
     }
 
+    public void addItems(List<GalleryItem> items) {
+        mValues.addAll(items);
+        notifyDataSetChanged();
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final ImageView mImageView;

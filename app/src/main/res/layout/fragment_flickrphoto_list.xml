@@ -9,4 +9,6 @@
     app:layoutManager="GridLayoutManager"
     app:spanCount="2"
     tools:context="com.learning.photogallery.PhotoGalleryFragment"
-    tools:listitem="@layout/fragment_flickrphoto" />
+    tools:listitem="@layout/fragment_flickrphoto"
+    android:scrollbars="vertical"
+    android:scrollbarSize="5dp"/>

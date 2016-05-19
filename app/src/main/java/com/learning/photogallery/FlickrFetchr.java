@@ -29,7 +29,8 @@ public class FlickrFetchr {
 
     private static final String XML_PHOTO = "photo";
     private static final String XML_PHOTOS = "photos";
-    private int currentPage;
+    private int currentPage = 1;
+    private int pages = 0;
 
     public byte[] getUrlBytes(String urlSpec) throws IOException {
         URL url = new URL(urlSpec);
@@ -62,15 +63,22 @@ public class FlickrFetchr {
     public ArrayList<GalleryItem> fetchItems() {
         ArrayList<GalleryItem> items = new ArrayList<>();
 
+        if (currentPage == pages) return items;
         try {
-            String url = Uri.parse(ENDPOINT).buildUpon()
+
+            Uri.Builder urlBuilder = Uri.parse(ENDPOINT).buildUpon()
                     .appendQueryParameter("method", METHOD_GET_RECENT)
                     .appendQueryParameter("api_key", API_KEY)
-                    .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL)
-                    .build().toString();
+                    .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL);
+
+            if (currentPage > 1) {
+                urlBuilder.appendQueryParameter("page", String.valueOf(currentPage));
+            }
+
+            String url = urlBuilder.build().toString();
             Log.i(TAG, "Current URL: "+url);
             String xmlString = getUrl(url);
-            Log.i(TAG, "Received xml: "+xmlString);
+//            Log.i(TAG, "Received xml: "+xmlString);
 
             XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
             XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
@@ -93,19 +101,37 @@ public class FlickrFetchr {
         int eventType = parser.next();
 
         while (eventType != XmlPullParser.END_DOCUMENT) {
+
+            if (currentPage == 1
+                    && eventType == XmlPullParser.START_TAG
+                    && XML_PHOTOS.equals(parser.getName())) {
+                pages = Integer.parseInt(parser.getAttributeValue(null, "total"));
+            }
+
             if (eventType == XmlPullParser.START_TAG
                     && XML_PHOTO.equals(parser.getName())) {
                 String id = parser.getAttributeValue(null, "id");
-                Log.i(TAG, "id: "+id);
+//                Log.i(TAG, "id: "+id);
                 String caption = parser.getAttributeValue(null, "title");
-                Log.i(TAG, "caption: "+caption);
+//                Log.i(TAG, "caption: "+caption);
                 String smallUrl = parser.getAttributeValue(null, EXTRA_SMALL_URL);
-                Log.i(TAG, "smallUrl: "+smallUrl);
+//                Log.i(TAG, "smallUrl: "+smallUrl);
 
                 items.add(new GalleryItem(id, smallUrl, caption));
             }
 
             eventType = parser.next();
         }
+
+        Log.i(TAG, "Current page: "+getCurrentPage());
+    }
+
+    public void updateCurrentPage() {
+        if (currentPage != pages) currentPage++;
+    }
+
+
+    public int getCurrentPage() {
+        return currentPage;
     }
 }

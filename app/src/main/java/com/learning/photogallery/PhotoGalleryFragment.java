@@ -7,12 +7,12 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.learning.photogallery.gallery.GalleryContent;
 import com.learning.photogallery.gallery.GalleryItem;
 
 import java.util.ArrayList;
@@ -27,6 +27,7 @@ public class PhotoGalleryFragment extends Fragment {
     private OnListFragmentInteractionListener mListener;
     private RecyclerView mRecyclerView;
     private ArrayList<GalleryItem> mItems;
+    private FlickrFetchr mFlickrFetchr;
 
     public PhotoGalleryFragment() {
     }
@@ -47,7 +48,9 @@ public class PhotoGalleryFragment extends Fragment {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
 
-        new FetchItemsTask().execute();
+        mItems = new ArrayList<>();
+        mFlickrFetchr = new FlickrFetchr();
+        getItemsFromFlickr();
     }
 
     @Override
@@ -64,11 +67,45 @@ public class PhotoGalleryFragment extends Fragment {
         return view;
     }
 
+
+    private void setupRecyclerViewPagination(RecyclerView.LayoutManager layoutManager) {
+        if (layoutManager instanceof LinearLayoutManager) {
+            LinearLayoutManager linearLayoutManager = (LinearLayoutManager) layoutManager;
+            mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(linearLayoutManager) {
+                @Override
+                public void onLoadMore(int page, int totalItemsCount) {
+                    getItemsFromFlickr();
+                }
+            });
+        } else if (layoutManager instanceof GridLayoutManager) {
+            GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
+            mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(gridLayoutManager) {
+                @Override
+                public void onLoadMore(int page, int totalItemsCount) {
+                    getItemsFromFlickr();
+                }
+            });
+        } else if (layoutManager instanceof StaggeredGridLayoutManager) {
+            StaggeredGridLayoutManager staggeredGridLayoutManager = (StaggeredGridLayoutManager) layoutManager;
+            mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(staggeredGridLayoutManager) {
+                @Override
+                public void onLoadMore(int page, int totalItemsCount) {
+                    getItemsFromFlickr();
+                }
+            });
+        }
+    }
+
+    private void getItemsFromFlickr() {
+        new FetchItemsTask().execute();
+    }
+
     private void setupRecyclerView(Context context) {
         if (getActivity() == null || mRecyclerView == null) return;
 
         setLayoutManager(context);
         setAdapter();
+        setupRecyclerViewPagination(mRecyclerView.getLayoutManager());
     }
 
     private void setLayoutManager(Context context) {
@@ -80,11 +117,12 @@ public class PhotoGalleryFragment extends Fragment {
     }
 
     private void setAdapter() {
-        if (mItems != null) {
-            mRecyclerView.setAdapter(new MyFlickrPhotoRecyclerViewAdapter(mItems, mListener));
-        }
+        mRecyclerView.setAdapter(new MyFlickrPhotoRecyclerViewAdapter(mItems, mListener));
     }
 
+    private void addItemsIntoAdapter() {
+        ((MyFlickrPhotoRecyclerViewAdapter) mRecyclerView.getAdapter()).addItems(mItems);
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -107,17 +145,29 @@ public class PhotoGalleryFragment extends Fragment {
 
         @Override
         protected ArrayList<GalleryItem> doInBackground(Void... params) {
-
-            return new FlickrFetchr().fetchItems();
+            return mFlickrFetchr.fetchItems();
         }
 
         @Override
         protected void onPostExecute(ArrayList<GalleryItem> galleryItems) {
             Log.i(TAG, "Returned items: "+galleryItems.size());
             mItems = galleryItems;
-            setAdapter();
+            if (mItems.size() != 0) {
+                updateAdapter();
+                mFlickrFetchr.updateCurrentPage();
+            }
         }
     }
+
+    private void updateAdapter() {
+        if (mFlickrFetchr.getCurrentPage() == 1) {
+            setAdapter();
+        } else {
+            addItemsIntoAdapter();
+        }
+        mItems = null;
+    }
+
 
 
     public interface OnListFragmentInteractionListener {
