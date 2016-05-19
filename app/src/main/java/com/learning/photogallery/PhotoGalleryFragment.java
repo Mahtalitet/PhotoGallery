@@ -81,7 +81,7 @@ public class PhotoGalleryFragment extends Fragment {
 
     private void setAdapter() {
         if (mItems != null) {
-            mRecyclerView.setAdapter(new MyFlickrPhotoRecyclerViewAdapter(mItems, mListener));
+            mRecyclerView.setAdapter(new MyFlickrPhotoRecyclerViewAdapter(getActivity(), mItems, mListener));
         }
     }
 

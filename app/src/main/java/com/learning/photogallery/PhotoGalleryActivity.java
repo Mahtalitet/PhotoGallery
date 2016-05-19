@@ -1,12 +1,14 @@
 package com.learning.photogallery;
 
 import android.support.v4.app.Fragment;
+import android.util.Log;
 
 import com.learning.photogallery.gallery.GalleryContent;
 import com.learning.photogallery.gallery.GalleryItem;
 
 public class PhotoGalleryActivity extends SingleFragmentActivity implements PhotoGalleryFragment.OnListFragmentInteractionListener {
 
+    private static final String TAG = "PhotoGalleryActivity";
 
     @Override
     protected Fragment createFragment() {
@@ -25,6 +27,7 @@ public class PhotoGalleryActivity extends SingleFragmentActivity implements Phot
 
     @Override
     public void onListFragmentInteraction(GalleryItem item) {
+        Log.i(TAG, "Clicked "+item.getmId());
 
     }
 }

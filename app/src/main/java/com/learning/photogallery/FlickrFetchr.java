@@ -28,6 +28,8 @@ public class FlickrFetchr {
     private static final String EXTRA_SMALL_URL = "url_s";
 
     private static final String XML_PHOTO = "photo";
+    private static final String XML_PHOTOS = "photos";
+    private int currentPage;
 
     public byte[] getUrlBytes(String urlSpec) throws IOException {
         URL url = new URL(urlSpec);
