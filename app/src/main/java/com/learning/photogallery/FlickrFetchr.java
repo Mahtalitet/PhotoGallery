@@ -57,7 +57,7 @@ public class FlickrFetchr {
         return new String(getUrlBytes(urlSpec));
     }
 
-    public void fetchItems() {
+    public ArrayList<GalleryItem> fetchItems() {
         ArrayList<GalleryItem> items = new ArrayList<>();
 
         try {
@@ -81,6 +81,9 @@ public class FlickrFetchr {
         } catch (XmlPullParserException e) {
             e.printStackTrace();
             Log.e(TAG, "Failed to parse items", e);
+
+        }finally {
+            return items;
         }
     }
 
@@ -88,14 +91,16 @@ public class FlickrFetchr {
         int eventType = parser.next();
 
         while (eventType != XmlPullParser.END_DOCUMENT) {
-            if (eventType == XmlPullParser.START_DOCUMENT
+            if (eventType == XmlPullParser.START_TAG
                     && XML_PHOTO.equals(parser.getName())) {
                 String id = parser.getAttributeValue(null, "id");
+                Log.i(TAG, "id: "+id);
                 String caption = parser.getAttributeValue(null, "title");
+                Log.i(TAG, "caption: "+caption);
                 String smallUrl = parser.getAttributeValue(null, EXTRA_SMALL_URL);
+                Log.i(TAG, "smallUrl: "+smallUrl);
 
-                GalleryItem item = new GalleryItem(id, smallUrl, caption);
-                items.add(item);
+                items.add(new GalleryItem(id, smallUrl, caption));
             }
 
             eventType = parser.next();

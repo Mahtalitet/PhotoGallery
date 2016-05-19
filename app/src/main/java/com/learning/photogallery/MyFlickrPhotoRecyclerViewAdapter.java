@@ -32,7 +32,7 @@ public class MyFlickrPhotoRecyclerViewAdapter extends RecyclerView.Adapter<MyFli
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
         holder.mIdView.setText(mValues.get(position).mId);
-        holder.mContentView.setText(mValues.get(position).mUrl);
+        holder.mContentView.setText(mValues.get(position).mCaption);
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override

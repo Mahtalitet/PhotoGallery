@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,19 +15,22 @@ import android.view.ViewGroup;
 import com.learning.photogallery.gallery.GalleryContent;
 import com.learning.photogallery.gallery.GalleryItem;
 
+import java.util.ArrayList;
+
 public class PhotoGalleryFragment extends Fragment {
     public static final String TAG = "PhotoGalleryFragment";
-    public static final int PHOTO_GALLERY_GRID_COUNT = 3;
+    public static final int PHOTO_GALLERY_GRID_COUNT = 2;
 
 
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 2;
     private OnListFragmentInteractionListener mListener;
+    private RecyclerView mRecyclerView;
+    private ArrayList<GalleryItem> mItems;
 
     public PhotoGalleryFragment() {
     }
 
-    @SuppressWarnings("unused")
     public static PhotoGalleryFragment newInstance(int columnCount) {
         PhotoGalleryFragment fragment = new PhotoGalleryFragment();
         Bundle args = new Bundle();
@@ -51,18 +55,34 @@ public class PhotoGalleryFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_flickrphoto_list, container, false);
 
-        // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
-            if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-            }
-            recyclerView.setAdapter(new MyFlickrPhotoRecyclerViewAdapter(GalleryContent.ITEMS, mListener));
+            mRecyclerView = (RecyclerView) view;
+            setupRecyclerView(context);
         }
+
         return view;
+    }
+
+    private void setupRecyclerView(Context context) {
+        if (getActivity() == null || mRecyclerView == null) return;
+
+        setLayoutManager(context);
+        setAdapter();
+    }
+
+    private void setLayoutManager(Context context) {
+        if (mColumnCount <= 1) {
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+        } else {
+            mRecyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
+        }
+    }
+
+    private void setAdapter() {
+        if (mItems != null) {
+            mRecyclerView.setAdapter(new MyFlickrPhotoRecyclerViewAdapter(mItems, mListener));
+        }
     }
 
 
@@ -83,19 +103,24 @@ public class PhotoGalleryFragment extends Fragment {
         mListener = null;
     }
 
-    private class FetchItemsTask extends AsyncTask<Void, Void, Void> {
+    private class FetchItemsTask extends AsyncTask<Void, Void, ArrayList<GalleryItem>> {
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected ArrayList<GalleryItem> doInBackground(Void... params) {
 
-            new FlickrFetchr().fetchItems();
-            return null;
+            return new FlickrFetchr().fetchItems();
+        }
+
+        @Override
+        protected void onPostExecute(ArrayList<GalleryItem> galleryItems) {
+            Log.i(TAG, "Returned items: "+galleryItems.size());
+            mItems = galleryItems;
+            setAdapter();
         }
     }
 
 
     public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onListFragmentInteraction(GalleryItem item);
     }
 }
