@@ -1,6 +1,7 @@
 package com.learning.photogallery;
 
 import android.content.Context;
+import android.os.HandlerThread;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -19,10 +20,13 @@ public class MyFlickrPhotoRecyclerViewAdapter extends RecyclerView.Adapter<MyFli
 
     private final List<GalleryItem> mValues;
     private final PhotoGalleryFragment.OnListFragmentInteractionListener mListener;
+    private FlickrImageDownloader mFlickrImageDownloader;
 
-    public MyFlickrPhotoRecyclerViewAdapter(List<GalleryItem> items, PhotoGalleryFragment.OnListFragmentInteractionListener listener) {
+
+    public MyFlickrPhotoRecyclerViewAdapter(FlickrImageDownloader imageDownloader, List<GalleryItem> items, PhotoGalleryFragment.OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
+        mFlickrImageDownloader = imageDownloader;
     }
 
     @Override
@@ -35,12 +39,14 @@ public class MyFlickrPhotoRecyclerViewAdapter extends RecyclerView.Adapter<MyFli
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        Glide.with(holder.mImageView.getContext())
-                .load(holder.mItem.getmUrl())
-                .asBitmap()
-                .centerCrop()
-                .placeholder(R.drawable.ic_collections_black_24dp)
-                .into(holder.mImageView);
+        mFlickrImageDownloader.queueImage(holder.mImageView, holder.mItem.getmUrl());
+
+//        Glide.with(holder.mImageView.getContext())
+//                .load(holder.mItem.getmUrl())
+//                .asBitmap()
+//                .centerCrop()
+//                .placeholder(R.drawable.ic_collections_black_24dp)
+//                .into(holder.mImageView);
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override

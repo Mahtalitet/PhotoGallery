@@ -3,6 +3,7 @@ package com.learning.photogallery;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.HandlerThread;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.learning.photogallery.gallery.GalleryItem;
 
@@ -28,6 +30,7 @@ public class PhotoGalleryFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private ArrayList<GalleryItem> mItems;
     private FlickrFetchr mFlickrFetchr;
+    private FlickrImageDownloader mFlickrImageDownloader;
 
     public PhotoGalleryFragment() {
     }
@@ -51,6 +54,12 @@ public class PhotoGalleryFragment extends Fragment {
         mItems = new ArrayList<>();
         mFlickrFetchr = new FlickrFetchr();
         getItemsFromFlickr();
+
+        mFlickrImageDownloader = new FlickrImageDownloader<ImageView>();
+        mFlickrImageDownloader.start();
+        mFlickrImageDownloader.getLooper();
+        Log.i(TAG, "Background thread started.");
+
     }
 
     @Override
@@ -117,7 +126,7 @@ public class PhotoGalleryFragment extends Fragment {
     }
 
     private void setAdapter() {
-        mRecyclerView.setAdapter(new MyFlickrPhotoRecyclerViewAdapter(mItems, mListener));
+        mRecyclerView.setAdapter(new MyFlickrPhotoRecyclerViewAdapter(mFlickrImageDownloader, mItems, mListener));
     }
 
     private void addItemsIntoAdapter() {
@@ -139,6 +148,13 @@ public class PhotoGalleryFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mFlickrImageDownloader.quit();
+        Log.i(TAG, "Background thread destroyed.");
     }
 
     private class FetchItemsTask extends AsyncTask<Void, Void, ArrayList<GalleryItem>> {
@@ -167,8 +183,6 @@ public class PhotoGalleryFragment extends Fragment {
         }
         mItems = null;
     }
-
-
 
     public interface OnListFragmentInteractionListener {
         void onListFragmentInteraction(GalleryItem item);
