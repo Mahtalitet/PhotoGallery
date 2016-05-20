@@ -39,6 +39,7 @@ public class MyFlickrPhotoRecyclerViewAdapter extends RecyclerView.Adapter<MyFli
                 .load(holder.mItem.getmUrl())
                 .asBitmap()
                 .centerCrop()
+                .placeholder(R.drawable.ic_collections_black_24dp)
                 .into(holder.mImageView);
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
