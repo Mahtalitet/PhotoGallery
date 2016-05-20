@@ -20,9 +20,22 @@ class FlickrImageDownloader<Token> extends HandlerThread {
     Handler mHandler;
     Map<Token, String> requestMap =
             Collections.synchronizedMap(new HashMap<Token, String>());
+    Handler mResponseHandler;
+    Listener<Token> mListener;
 
-    public FlickrImageDownloader() {
+    public interface Listener<Token> {
+        void onImageDownloaded(Token token, Bitmap image);
+
+    }
+
+    public void setListener(Listener<Token> listener) {
+        mListener = listener;
+    }
+
+
+    public FlickrImageDownloader(Handler responseHandler) {
         super(TAG);
+        mResponseHandler = responseHandler;
     }
 
     public void queueImage(Token token, String url) {
@@ -49,7 +62,7 @@ class FlickrImageDownloader<Token> extends HandlerThread {
         };
     }
 
-    private void handleRequest(Token token) {
+    private void handleRequest(final Token token) {
         final String url = requestMap.get(token);
         if (url == null) return;
 
@@ -59,9 +72,27 @@ class FlickrImageDownloader<Token> extends HandlerThread {
                     BitmapFactory
                             .decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
             Log.i(TAG, "Bitmap created.");
+
+            mResponseHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (requestMap.get(token) != url) return;
+
+                    requestMap.remove(token);
+                    mListener.onImageDownloaded(token, bitmap);
+                }
+            });
+
         } catch (IOException e) {
             e.printStackTrace();
             Log.e(TAG, "Error downloading image.", e);
         }
     }
+
+    public void clearQueue() {
+        mHandler.removeMessages(MESSAGE_DOWNLOAD);
+        requestMap.clear();
+    }
+
+
 }

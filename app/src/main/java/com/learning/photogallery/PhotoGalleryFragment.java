@@ -1,8 +1,10 @@
 package com.learning.photogallery;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -55,11 +57,19 @@ public class PhotoGalleryFragment extends Fragment {
         mFlickrFetchr = new FlickrFetchr();
         getItemsFromFlickr();
 
-        mFlickrImageDownloader = new FlickrImageDownloader<ImageView>();
+        mFlickrImageDownloader = new FlickrImageDownloader<ImageView>(new Handler());
+        mFlickrImageDownloader.setListener(new FlickrImageDownloader.Listener<ImageView>() {
+
+            @Override
+            public void onImageDownloaded(ImageView imageView, Bitmap image) {
+                if (isVisible()) {
+                    imageView.setImageBitmap(image);
+                }
+            }
+        });
         mFlickrImageDownloader.start();
         mFlickrImageDownloader.getLooper();
         Log.i(TAG, "Background thread started.");
-
     }
 
     @Override
@@ -76,6 +86,11 @@ public class PhotoGalleryFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mFlickrImageDownloader.clearQueue();
+    }
 
     private void setupRecyclerViewPagination(RecyclerView.LayoutManager layoutManager) {
         if (layoutManager instanceof LinearLayoutManager) {
