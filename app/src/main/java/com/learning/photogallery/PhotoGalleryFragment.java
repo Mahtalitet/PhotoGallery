@@ -90,20 +90,22 @@ public class PhotoGalleryFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         mFlickrImageDownloader.clearQueue();
+        mFlickrImageDownloader.cleareCache();
     }
 
     private void setupRecyclerViewPagination(RecyclerView.LayoutManager layoutManager) {
-        if (layoutManager instanceof LinearLayoutManager) {
-            LinearLayoutManager linearLayoutManager = (LinearLayoutManager) layoutManager;
-            mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(linearLayoutManager) {
+        if (layoutManager instanceof GridLayoutManager) {
+            Log.d(TAG, "Get GridLayoutManager");
+            GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
+            mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(gridLayoutManager) {
                 @Override
                 public void onLoadMore(int page, int totalItemsCount) {
                     getItemsFromFlickr();
                 }
             });
-        } else if (layoutManager instanceof GridLayoutManager) {
-            GridLayoutManager gridLayoutManager = (GridLayoutManager) layoutManager;
-            mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(gridLayoutManager) {
+        } else if (layoutManager instanceof LinearLayoutManager) {
+            LinearLayoutManager linearLayoutManager = (LinearLayoutManager) layoutManager;
+            mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(linearLayoutManager) {
                 @Override
                 public void onLoadMore(int page, int totalItemsCount) {
                     getItemsFromFlickr();

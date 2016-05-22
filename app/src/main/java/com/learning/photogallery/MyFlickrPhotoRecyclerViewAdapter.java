@@ -20,7 +20,7 @@ public class MyFlickrPhotoRecyclerViewAdapter extends RecyclerView.Adapter<MyFli
 
     private final List<GalleryItem> mValues;
     private final PhotoGalleryFragment.OnListFragmentInteractionListener mListener;
-    private FlickrImageDownloader mFlickrImageDownloader;
+    private final FlickrImageDownloader mFlickrImageDownloader;
 
 
     public MyFlickrPhotoRecyclerViewAdapter(FlickrImageDownloader imageDownloader, List<GalleryItem> items, PhotoGalleryFragment.OnListFragmentInteractionListener listener) {

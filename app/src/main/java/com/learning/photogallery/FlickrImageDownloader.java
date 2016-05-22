@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.support.v4.util.LruCache;
 import android.util.Log;
 
 import java.io.IOException;
@@ -16,12 +17,14 @@ import java.util.Map;
 class FlickrImageDownloader<Token> extends HandlerThread {
     private static final String TAG = "FlickrImageDownloader";
     private static final int MESSAGE_DOWNLOAD = 0;
+    private static final int MAX_CACHE_SIZE = 20;
 
     Handler mHandler;
     Map<Token, String> requestMap =
             Collections.synchronizedMap(new HashMap<Token, String>());
     Handler mResponseHandler;
     Listener<Token> mListener;
+    LruCache<String, Bitmap> mBitmapCache;
 
     public interface Listener<Token> {
         void onImageDownloaded(Token token, Bitmap image);
@@ -36,6 +39,7 @@ class FlickrImageDownloader<Token> extends HandlerThread {
     public FlickrImageDownloader(Handler responseHandler) {
         super(TAG);
         mResponseHandler = responseHandler;
+        mBitmapCache = new LruCache<>(MAX_CACHE_SIZE);
     }
 
     public void queueImage(Token token, String url) {
@@ -67,11 +71,20 @@ class FlickrImageDownloader<Token> extends HandlerThread {
         if (url == null) return;
 
         try {
-            byte[] bitmapBytes = new FlickrFetchr().getUrlBytes(url);
-            final Bitmap bitmap =
-                    BitmapFactory
-                            .decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
-            Log.i(TAG, "Bitmap created.");
+            final Bitmap bitmap;
+
+            if (mBitmapCache.get(url) == null) {
+                byte[] bitmapBytes = new FlickrFetchr().getUrlBytes(url);
+                bitmap =
+                        BitmapFactory
+                                .decodeByteArray(bitmapBytes, 0, bitmapBytes.length);
+                Log.i(TAG, "Bitmap created.");
+                mBitmapCache.put(url, bitmap);
+                Log.i(TAG, "Bitmap cached");
+            } else {
+                bitmap = mBitmapCache.get(url);
+                Log.i(TAG, "Bitmap get from cache");
+            }
 
             mResponseHandler.post(new Runnable() {
                 @Override
@@ -94,5 +107,7 @@ class FlickrImageDownloader<Token> extends HandlerThread {
         requestMap.clear();
     }
 
-
+    public void cleareCache() {
+        mBitmapCache.evictAll();
+    }
 }
