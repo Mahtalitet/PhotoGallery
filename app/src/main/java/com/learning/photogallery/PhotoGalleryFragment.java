@@ -145,7 +145,13 @@ public class PhotoGalleryFragment extends Fragment {
 
         @Override
         protected ArrayList<GalleryItem> doInBackground(Void... params) {
-            return mFlickrFetchr.fetchItems();
+            String query = "android";
+
+            if (query != null) {
+                return new FlickrFetchr().search(query);
+            } else {
+                return mFlickrFetchr.fetchItems();
+            }
         }
 
         @Override
@@ -167,8 +173,6 @@ public class PhotoGalleryFragment extends Fragment {
         }
         mItems = null;
     }
-
-
 
     public interface OnListFragmentInteractionListener {
         void onListFragmentInteraction(GalleryItem item);
