@@ -1,5 +1,7 @@
 package com.learning.photogallery;
 
+import android.app.SearchManager;
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
@@ -29,5 +31,17 @@ public class PhotoGalleryActivity extends SingleFragmentActivity implements Phot
     public void onListFragmentInteraction(GalleryItem item) {
         Log.i(TAG, "Clicked "+item.getmId());
 
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        PhotoGalleryFragment fragment = (PhotoGalleryFragment) getSupportFragmentManager().findFragmentById(getFragmentContainerId());
+
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            Log.i(TAG, "Recived a new search query:" );
+        }
+
+        fragment.getItemsFromFlickr();
     }
 }

@@ -100,7 +100,7 @@ public class PhotoGalleryFragment extends Fragment {
         }
     }
 
-    private void getItemsFromFlickr() {
+    public void getItemsFromFlickr() {
         new FetchItemsTask().execute();
     }
 
@@ -149,7 +149,7 @@ public class PhotoGalleryFragment extends Fragment {
 
         @Override
         protected ArrayList<GalleryItem> doInBackground(Void... params) {
-            String query = null;
+            String query = "android";
 
             if (query != null) {
                 return new FlickrFetchr().search(query);
