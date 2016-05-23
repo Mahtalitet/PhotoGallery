@@ -2,6 +2,7 @@ package com.learning.photogallery;
 
 import android.app.SearchManager;
 import android.content.Intent;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
@@ -39,6 +40,11 @@ public class PhotoGalleryActivity extends SingleFragmentActivity implements Phot
 
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
+
+            PreferenceManager.getDefaultSharedPreferences(this)
+                    .edit()
+                    .putString(FlickrFetchr.PREF_SEARCH_QUERY, query)
+                    .commit();
             Log.i(TAG, "Recived a new search query:" );
         }
 

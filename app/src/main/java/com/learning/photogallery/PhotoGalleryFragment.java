@@ -1,8 +1,10 @@
 package com.learning.photogallery;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,12 +20,12 @@ import android.view.ViewGroup;
 
 import com.learning.photogallery.gallery.GalleryItem;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class PhotoGalleryFragment extends Fragment {
     public static final String TAG = "PhotoGalleryFragment";
     public static final int PHOTO_GALLERY_GRID_COUNT = 2;
-
 
     private static final String ARG_COLUMN_COUNT = "column-count";
     private int mColumnCount = 2;
@@ -31,6 +33,8 @@ public class PhotoGalleryFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private ArrayList<GalleryItem> mItems;
     private FlickrFetchr mFlickrFetchr;
+
+    private FlickrFetchr.FetchingType currentType;
 
     public PhotoGalleryFragment() {
     }
@@ -52,9 +56,10 @@ public class PhotoGalleryFragment extends Fragment {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
 
-        mItems = new ArrayList<>();
+//        mItems = new ArrayList<>();
         mFlickrFetchr = new FlickrFetchr();
         getItemsFromFlickr();
+        currentType = FlickrFetchr.FetchingType.RECENT;
     }
 
     @Override
@@ -78,7 +83,7 @@ public class PhotoGalleryFragment extends Fragment {
             mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(linearLayoutManager) {
                 @Override
                 public void onLoadMore(int page, int totalItemsCount) {
-                    getItemsFromFlickr();
+                    if (currentType == FlickrFetchr.FetchingType.RECENT) getItemsFromFlickr();
                 }
             });
         } else if (layoutManager instanceof GridLayoutManager) {
@@ -86,7 +91,7 @@ public class PhotoGalleryFragment extends Fragment {
             mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(gridLayoutManager) {
                 @Override
                 public void onLoadMore(int page, int totalItemsCount) {
-                    getItemsFromFlickr();
+                    if (currentType == FlickrFetchr.FetchingType.RECENT) getItemsFromFlickr();
                 }
             });
         } else if (layoutManager instanceof StaggeredGridLayoutManager) {
@@ -94,7 +99,7 @@ public class PhotoGalleryFragment extends Fragment {
             mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(staggeredGridLayoutManager) {
                 @Override
                 public void onLoadMore(int page, int totalItemsCount) {
-                    getItemsFromFlickr();
+                    if (currentType == FlickrFetchr.FetchingType.RECENT) getItemsFromFlickr();
                 }
             });
         }
@@ -108,7 +113,7 @@ public class PhotoGalleryFragment extends Fragment {
         if (getActivity() == null || mRecyclerView == null) return;
 
         setLayoutManager(context);
-        setAdapter();
+        setAdapter(new ArrayList<GalleryItem>());
         setupRecyclerViewPagination(mRecyclerView.getLayoutManager());
     }
 
@@ -120,12 +125,12 @@ public class PhotoGalleryFragment extends Fragment {
         }
     }
 
-    private void setAdapter() {
-        mRecyclerView.setAdapter(new MyFlickrPhotoRecyclerViewAdapter(mItems, mListener));
+    private void setAdapter(ArrayList<GalleryItem> items) {
+        mRecyclerView.setAdapter(new MyFlickrPhotoRecyclerViewAdapter(items, mListener));
     }
 
-    private void addItemsIntoAdapter() {
-        ((MyFlickrPhotoRecyclerViewAdapter) mRecyclerView.getAdapter()).addItems(mItems);
+    private void addItemsIntoAdapter(ArrayList<GalleryItem> items) {
+        ((MyFlickrPhotoRecyclerViewAdapter) mRecyclerView.getAdapter()).addItems(items);
     }
 
     @Override
@@ -149,11 +154,18 @@ public class PhotoGalleryFragment extends Fragment {
 
         @Override
         protected ArrayList<GalleryItem> doInBackground(Void... params) {
-            String query = "android";
+            Activity activity = getActivity();
+
+            if (activity == null) return new ArrayList<GalleryItem>();
+
+            String query = PreferenceManager.getDefaultSharedPreferences(activity)
+                    .getString(FlickrFetchr.PREF_SEARCH_QUERY, null);
 
             if (query != null) {
+                currentType = FlickrFetchr.FetchingType.SEARCH;
                 return new FlickrFetchr().search(query);
             } else {
+                currentType = FlickrFetchr.FetchingType.RECENT;
                 return mFlickrFetchr.fetchItems();
             }
         }
@@ -161,21 +173,30 @@ public class PhotoGalleryFragment extends Fragment {
         @Override
         protected void onPostExecute(ArrayList<GalleryItem> galleryItems) {
             Log.i(TAG, "Returned items: "+galleryItems.size());
-            mItems = galleryItems;
-            if (mItems.size() != 0) {
-                updateAdapter();
-                mFlickrFetchr.updateCurrentPage();
+//            mItems = galleryItems;
+
+            if (galleryItems.size() != 0) {
+                if (currentType == FlickrFetchr.FetchingType.RECENT) {
+                    updateAdapter(galleryItems);
+                    mFlickrFetchr.increaseCurrentPageAtOne();
+                } else {
+                    setAdapter(galleryItems);
+                }
             }
         }
     }
 
-    private void updateAdapter() {
+    private void updateAdapter(ArrayList<GalleryItem> items) {
         if (mFlickrFetchr.getCurrentPage() == 1) {
-            setAdapter();
+            setAdapter(items);
         } else {
-            addItemsIntoAdapter();
+            addItemsIntoAdapter(items);
         }
-        mItems = null;
+//        mItems = null;
+    }
+
+    public void clearAdapter() {
+        ((MyFlickrPhotoRecyclerViewAdapter) mRecyclerView.getAdapter()).clearItems();
     }
 
     public interface OnListFragmentInteractionListener {
@@ -196,9 +217,16 @@ public class PhotoGalleryFragment extends Fragment {
                 getActivity().onSearchRequested();
                 return true;
             case R.id.menu_item_clear:
+                PreferenceManager.getDefaultSharedPreferences(getActivity())
+                        .edit()
+                        .putString(FlickrFetchr.PREF_SEARCH_QUERY, null)
+                        .commit();
+                clearAdapter();
+                getItemsFromFlickr();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
 }

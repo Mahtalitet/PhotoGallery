@@ -21,6 +21,7 @@ import java.util.ArrayList;
 public class FlickrFetchr {
 
     public static final String TAG = "FlickrFetchr";
+    public static final String PREF_SEARCH_QUERY = "searchQuery";
     private static final String ENDPOINT = "https://api.flickr.com/services/rest/";
     private static final String API_KEY = "d71c15eae0df48451eb9114e718b952e";
     private static final String METHOD_GET_RECENT = "flickr.photos.getRecent";
@@ -36,6 +37,8 @@ public class FlickrFetchr {
     private static final String XML_PHOTOS = "photos";
     private int currentPage = 1;
     private int pages = 0;
+
+    public enum FetchingType {RECENT, SEARCH}
 
     public byte[] getUrlBytes(String urlSpec) throws IOException {
         URL url = new URL(urlSpec);
@@ -65,7 +68,6 @@ public class FlickrFetchr {
         return new String(getUrlBytes(urlSpec));
     }
 
-
     public ArrayList<GalleryItem> downloadGalleyItems(String url) {
         ArrayList<GalleryItem> items = new ArrayList<>();
 
@@ -92,16 +94,30 @@ public class FlickrFetchr {
     }
 
     public ArrayList<GalleryItem> fetchItems() {
-        Uri.Builder urlBuilder = Uri.parse(ENDPOINT).buildUpon()
+       if (currentPage == 1) {
+           return fetchItemsLast();
+       } else  {
+           return fetchItemsByPage(currentPage);
+       }
+    }
+
+    public ArrayList<GalleryItem> fetchItemsLast() {
+        String url = Uri.parse(ENDPOINT).buildUpon()
                 .appendQueryParameter(PARAM_METHOD, METHOD_GET_RECENT)
                 .appendQueryParameter(PARAM_API_KEY, API_KEY)
-                .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL);
+                .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL)
+                .build().toString();
 
-        if (currentPage > 1) {
-            urlBuilder.appendQueryParameter(PARAM_PAGE, String.valueOf(currentPage));
-        }
+        return downloadGalleyItems(url);
+    }
 
-        String url = urlBuilder.build().toString();
+    public ArrayList<GalleryItem> fetchItemsByPage(int page) {
+        String url = Uri.parse(ENDPOINT).buildUpon()
+                .appendQueryParameter(PARAM_METHOD, METHOD_GET_RECENT)
+                .appendQueryParameter(PARAM_API_KEY, API_KEY)
+                .appendQueryParameter(PARAM_EXTRAS, EXTRA_SMALL_URL)
+                .appendQueryParameter(PARAM_PAGE, String.valueOf(page))
+                .build().toString();
 
         return downloadGalleyItems(url);
     }
@@ -125,7 +141,7 @@ public class FlickrFetchr {
             if (currentPage == 1
                     && eventType == XmlPullParser.START_TAG
                     && XML_PHOTOS.equals(parser.getName())) {
-                pages = Integer.parseInt(parser.getAttributeValue(null, "total"));
+                pages = parsePages(parser);
             }
 
             if (eventType == XmlPullParser.START_TAG
@@ -146,10 +162,17 @@ public class FlickrFetchr {
         Log.i(TAG, "Current page: "+getCurrentPage());
     }
 
-    public void updateCurrentPage() {
+    private int parsePages(XmlPullParser parser) {
+        return Integer.parseInt(parser.getAttributeValue(null, "total"));
+    }
+
+    public void increaseCurrentPageAtOne() {
         if (currentPage != pages) currentPage++;
     }
 
+    public void decreaseCurrentPageAtOne() {
+        if (currentPage > 0) currentPage--;
+    }
 
     public int getCurrentPage() {
         return currentPage;
