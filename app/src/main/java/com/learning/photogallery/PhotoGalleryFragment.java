@@ -1,14 +1,20 @@
 package com.learning.photogallery;
 
 import android.app.Activity;
+import android.app.SearchManager;
+import android.app.SearchableInfo;
+import android.content.ComponentName;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -58,8 +64,12 @@ public class PhotoGalleryFragment extends Fragment {
 
 //        mItems = new ArrayList<>();
         mFlickrFetchr = new FlickrFetchr();
-        getItemsFromFlickr();
         currentType = FlickrFetchr.FetchingType.RECENT;
+        PreferenceManager.getDefaultSharedPreferences(getActivity())
+                .edit()
+                .putString(FlickrFetchr.PREF_SEARCH_QUERY, null)
+                .commit();
+        getItemsFromFlickr();
     }
 
     @Override
@@ -207,6 +217,17 @@ public class PhotoGalleryFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.fragment_photo_gallery, menu);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            MenuItem searchItem = menu.findItem(R.id.menu_item_search);
+            SearchView searchView = (SearchView) searchItem.getActionView();
+
+            SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+            ComponentName name = getActivity().getComponentName();
+            SearchableInfo searchableInfo = searchManager.getSearchableInfo(name);
+
+            searchView.setSearchableInfo(searchableInfo);
+        }
     }
 
     @Override
@@ -217,12 +238,15 @@ public class PhotoGalleryFragment extends Fragment {
                 getActivity().onSearchRequested();
                 return true;
             case R.id.menu_item_clear:
-                PreferenceManager.getDefaultSharedPreferences(getActivity())
-                        .edit()
-                        .putString(FlickrFetchr.PREF_SEARCH_QUERY, null)
-                        .commit();
-                clearAdapter();
-                getItemsFromFlickr();
+                synchronized (this) {
+                    PreferenceManager.getDefaultSharedPreferences(getActivity())
+                            .edit()
+                            .putString(FlickrFetchr.PREF_SEARCH_QUERY, null)
+                            .commit();
+                    mFlickrFetchr.resetPages();
+                    clearAdapter();
+                    getItemsFromFlickr();
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

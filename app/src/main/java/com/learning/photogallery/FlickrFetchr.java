@@ -35,7 +35,9 @@ public class FlickrFetchr {
 
     private static final String XML_PHOTO = "photo";
     private static final String XML_PHOTOS = "photos";
-    private int currentPage = 1;
+    private static final int FIRST_PAGE = 1;
+
+    private int currentPage = FIRST_PAGE;
     private int pages = 0;
 
     public enum FetchingType {RECENT, SEARCH}
@@ -172,6 +174,10 @@ public class FlickrFetchr {
 
     public void decreaseCurrentPageAtOne() {
         if (currentPage > 0) currentPage--;
+    }
+
+    public void resetPages() {
+        currentPage = FIRST_PAGE;
     }
 
     public int getCurrentPage() {
