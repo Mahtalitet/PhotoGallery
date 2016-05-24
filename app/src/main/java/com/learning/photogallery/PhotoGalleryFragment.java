@@ -235,7 +235,9 @@ public class PhotoGalleryFragment extends Fragment {
 
         switch (item.getItemId()) {
             case R.id.menu_item_search:
-                getActivity().onSearchRequested();
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+                    getActivity().onSearchRequested();
+                }
                 return true;
             case R.id.menu_item_clear:
                 synchronized (this) {
