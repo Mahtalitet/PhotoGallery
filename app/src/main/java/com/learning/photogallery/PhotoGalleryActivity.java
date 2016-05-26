@@ -46,9 +46,7 @@ public class PhotoGalleryActivity extends SingleFragmentActivity implements Phot
                     .putString(FlickrFetcher.PREF_SEARCH_QUERY, query)
                     .commit();
             Log.i(TAG, "Recived a new search query:" );
+            fragment.getItemsFromFlickr(Gallery.FetchingType.SEARCH, true);
         }
-
-        fragment.getItemsFromFlickr(Gallery.FetchingType.SEARCH, true);
     }
-
 }
