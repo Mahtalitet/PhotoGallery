@@ -5,6 +5,7 @@ import android.app.SearchManager;
 import android.app.SearchableInfo;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -57,6 +58,9 @@ public class PhotoGalleryFragment extends Fragment {
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
+
+        Intent i = new Intent(getActivity(), PollService.class);
+        getActivity().startService(i);
 
         PreferenceManager.getDefaultSharedPreferences(getActivity())
                 .edit()
