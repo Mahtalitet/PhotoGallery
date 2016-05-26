@@ -37,9 +37,9 @@ public class MyFlickrPhotoRecyclerViewAdapter extends RecyclerView.Adapter<MyFli
         holder.mItem = mValues.get(position);
         Glide.with(holder.mImageView.getContext())
                 .load(holder.mItem.getmUrl())
-                .asBitmap()
+                .crossFade()
                 .centerCrop()
-                .placeholder(R.drawable.ic_collections_black_24dp)
+                .placeholder(R.drawable.ic_collections)
                 .into(holder.mImageView);
 
         holder.mView.setOnClickListener(new View.OnClickListener() {

@@ -6,7 +6,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
-import com.learning.photogallery.gallery.GalleryContent;
+import com.learning.photogallery.gallery.Gallery;
 import com.learning.photogallery.gallery.GalleryItem;
 
 public class PhotoGalleryActivity extends SingleFragmentActivity implements PhotoGalleryFragment.OnListFragmentInteractionListener {
@@ -43,11 +43,12 @@ public class PhotoGalleryActivity extends SingleFragmentActivity implements Phot
 
             PreferenceManager.getDefaultSharedPreferences(this)
                     .edit()
-                    .putString(FlickrFetchr.PREF_SEARCH_QUERY, query)
+                    .putString(FlickrFetcher.PREF_SEARCH_QUERY, query)
                     .commit();
             Log.i(TAG, "Recived a new search query:" );
         }
 
-        fragment.getItemsFromFlickr();
+        fragment.getItemsFromFlickr(Gallery.FetchingType.SEARCH, true);
     }
+
 }

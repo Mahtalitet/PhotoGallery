@@ -10,7 +10,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,11 +22,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
+import com.learning.photogallery.gallery.Gallery;
+import com.learning.photogallery.gallery.GalleryFactory;
 import com.learning.photogallery.gallery.GalleryItem;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class PhotoGalleryFragment extends Fragment {
@@ -38,10 +36,7 @@ public class PhotoGalleryFragment extends Fragment {
     private int mColumnCount = 2;
     private OnListFragmentInteractionListener mListener;
     private RecyclerView mRecyclerView;
-    private ArrayList<GalleryItem> mItems;
-    private FlickrFetchr mFlickrFetchr;
-
-    private FlickrFetchr.FetchingType currentType;
+    private Gallery.FetchingType currentType;
 
     public PhotoGalleryFragment() {
     }
@@ -63,14 +58,11 @@ public class PhotoGalleryFragment extends Fragment {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
 
-//        mItems = new ArrayList<>();
-        mFlickrFetchr = new FlickrFetchr();
-        currentType = FlickrFetchr.FetchingType.RECENT;
         PreferenceManager.getDefaultSharedPreferences(getActivity())
                 .edit()
-                .putString(FlickrFetchr.PREF_SEARCH_QUERY, null)
+                .putString(FlickrFetcher.PREF_SEARCH_QUERY, null)
                 .commit();
-        getItemsFromFlickr();
+        getItemsFromFlickr(Gallery.FetchingType.RECENT, true);
     }
 
     @Override
@@ -87,14 +79,13 @@ public class PhotoGalleryFragment extends Fragment {
         return view;
     }
 
-
     private void setupRecyclerViewPagination(RecyclerView.LayoutManager layoutManager) {
         if (layoutManager instanceof LinearLayoutManager) {
             LinearLayoutManager linearLayoutManager = (LinearLayoutManager) layoutManager;
             mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(linearLayoutManager) {
                 @Override
                 public void onLoadMore(int page, int totalItemsCount) {
-                    if (currentType == FlickrFetchr.FetchingType.RECENT) getItemsFromFlickr();
+                    updateItems();
                 }
             });
         } else if (layoutManager instanceof GridLayoutManager) {
@@ -102,7 +93,7 @@ public class PhotoGalleryFragment extends Fragment {
             mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(gridLayoutManager) {
                 @Override
                 public void onLoadMore(int page, int totalItemsCount) {
-                    if (currentType == FlickrFetchr.FetchingType.RECENT) getItemsFromFlickr();
+                    updateItems();
                 }
             });
         } else if (layoutManager instanceof StaggeredGridLayoutManager) {
@@ -110,14 +101,22 @@ public class PhotoGalleryFragment extends Fragment {
             mRecyclerView.addOnScrollListener(new EndlessRecyclerViewScrollListener(staggeredGridLayoutManager) {
                 @Override
                 public void onLoadMore(int page, int totalItemsCount) {
-                    if (currentType == FlickrFetchr.FetchingType.RECENT) getItemsFromFlickr();
+                    updateItems();
                 }
             });
         }
     }
 
-    public void getItemsFromFlickr() {
-        new FetchItemsTask().execute();
+    private void updateItems() {
+        if (currentType == Gallery.FetchingType.RECENT) {
+            getItemsFromFlickr(Gallery.FetchingType.RECENT, false);
+        } else {
+            getItemsFromFlickr(Gallery.FetchingType.SEARCH, false);
+        }
+    }
+
+    public void getItemsFromFlickr(Gallery.FetchingType requestType, boolean isFirstGet) {
+        new FetchItemsTask(isFirstGet).execute(requestType);
     }
 
     private void setupRecyclerView(Context context) {
@@ -161,49 +160,60 @@ public class PhotoGalleryFragment extends Fragment {
         mListener = null;
     }
 
-    private class FetchItemsTask extends AsyncTask<Void, Void, ArrayList<GalleryItem>> {
+    private class FetchItemsTask extends AsyncTask<Gallery.FetchingType, Void, ArrayList<GalleryItem>> {
+
+        private boolean isFirst;
+
+        public FetchItemsTask(boolean isFirst) {
+            this.isFirst = isFirst;
+        }
 
         @Override
-        protected ArrayList<GalleryItem> doInBackground(Void... params) {
+        protected ArrayList<GalleryItem> doInBackground(Gallery.FetchingType... params) {
             Activity activity = getActivity();
 
             if (activity == null) return new ArrayList<GalleryItem>();
 
             String query = PreferenceManager.getDefaultSharedPreferences(activity)
-                    .getString(FlickrFetchr.PREF_SEARCH_QUERY, null);
+                    .getString(FlickrFetcher.PREF_SEARCH_QUERY, null);
+            setCurrentTypeFrom(query);
 
-            if (query != null) {
-                currentType = FlickrFetchr.FetchingType.SEARCH;
-                return new FlickrFetchr().search(query);
-            } else {
-                currentType = FlickrFetchr.FetchingType.RECENT;
-                return mFlickrFetchr.fetchItems();
-            }
+            return GalleryFactory.get(params[0], isFirst, getContext()).returnItemsBy(query);
         }
 
         @Override
         protected void onPostExecute(ArrayList<GalleryItem> galleryItems) {
             Log.i(TAG, "Returned items: "+galleryItems.size());
-//            mItems = galleryItems;
 
             if (galleryItems.size() != 0) {
-                if (currentType == FlickrFetchr.FetchingType.RECENT) {
-                    updateAdapter(galleryItems);
-                    mFlickrFetchr.increaseCurrentPageAtOne();
-                } else {
-                    setAdapter(galleryItems);
-                }
+                updateAdapter(galleryItems, isFirst);
+            }
+            try {
+                GalleryFactory.get().makeToastAboutPagesCount();
+            } catch (GalleryFactory.FactoryNotCreatedException e) {
+                e.printStackTrace();
             }
         }
     }
 
-    private void updateAdapter(ArrayList<GalleryItem> items) {
-        if (mFlickrFetchr.getCurrentPage() == 1) {
-            setAdapter(items);
-        } else {
-            addItemsIntoAdapter(items);
+    private void updateAdapter(ArrayList<GalleryItem> items, boolean isFirst) {
+        try {
+            if (((GalleryFactory.get().getGalleryPages()) == 1) || isFirst) {
+                setAdapter(items);
+            } else {
+                addItemsIntoAdapter(items);
+            }
+        } catch (GalleryFactory.FactoryNotCreatedException e) {
+            e.printStackTrace();
         }
-//        mItems = null;
+    }
+
+    private void setCurrentTypeFrom(String query) {
+        if (query != null) {
+            currentType = Gallery.FetchingType.SEARCH;
+        } else {
+            currentType = Gallery.FetchingType.RECENT;
+        }
     }
 
     public void clearAdapter() {
@@ -244,16 +254,14 @@ public class PhotoGalleryFragment extends Fragment {
                 synchronized (this) {
                     PreferenceManager.getDefaultSharedPreferences(getActivity())
                             .edit()
-                            .putString(FlickrFetchr.PREF_SEARCH_QUERY, null)
+                            .putString(FlickrFetcher.PREF_SEARCH_QUERY, null)
                             .commit();
-                    mFlickrFetchr.resetPages();
                     clearAdapter();
-                    getItemsFromFlickr();
+                    getItemsFromFlickr(Gallery.FetchingType.RECENT, true);
                 }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-
 }
