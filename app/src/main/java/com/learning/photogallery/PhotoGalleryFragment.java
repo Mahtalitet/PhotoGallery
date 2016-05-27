@@ -1,6 +1,7 @@
 package com.learning.photogallery;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.app.SearchableInfo;
 import android.content.ComponentName;
@@ -59,8 +60,7 @@ public class PhotoGalleryFragment extends Fragment {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
 
-        Intent i = new Intent(getActivity(), PollService.class);
-        getActivity().startService(i);
+//        PollService.setServiceAlarm(getActivity(), true);
 
         PreferenceManager.getDefaultSharedPreferences(getActivity())
                 .edit()
