@@ -60,8 +60,6 @@ public class PhotoGalleryFragment extends Fragment {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
 
-//        PollService.setServiceAlarm(getActivity(), true);
-
         PreferenceManager.getDefaultSharedPreferences(getActivity())
                 .edit()
                 .putString(FlickrFetcher.PREF_SEARCH_QUERY, null)
@@ -246,6 +244,20 @@ public class PhotoGalleryFragment extends Fragment {
     }
 
     @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        MenuItem toggleItem = menu.findItem(R.id.menu_item_toggle_polling);
+        if (!PollService.isServiceAlarmOn(getActivity())) {
+            toggleItem.setTitle(R.string.start_polling);
+            toggleItem.setIcon(R.drawable.ic_sync);
+        } else {
+            toggleItem.setTitle(R.string.stop_polling);
+            toggleItem.setIcon(R.drawable.ic_sync_disabled);
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
@@ -264,8 +276,17 @@ public class PhotoGalleryFragment extends Fragment {
                     getItemsFromFlickr(Gallery.FetchingType.RECENT, true);
                 }
                 return true;
+            case R.id.menu_item_toggle_polling:
+                boolean shouldStartAlarm = !PollService.isServiceAlarmOn(getActivity());
+                PollService.setServiceAlarm(getActivity(), shouldStartAlarm);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    getActivity().invalidateOptionsMenu();
+                }
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+
 }

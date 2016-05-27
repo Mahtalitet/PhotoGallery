@@ -68,10 +68,19 @@ public class PollService extends IntentService {
         if (isOn) {
             alarmManager.setRepeating(AlarmManager.RTC,
                     System.currentTimeMillis(), POLL_INTERVAL, pi);
+            Log.i(TAG, "Polling started.");
         } else {
             alarmManager.cancel(pi);
             pi.cancel();
+            Log.i(TAG, "Polling stopped.");
         }
+    }
+
+    public static boolean isServiceAlarmOn(Context context) {
+        Intent i = new Intent(context, PollService.class);
+        PendingIntent pi = PendingIntent.getService(context, 0, i, PendingIntent.FLAG_NO_CREATE);
+
+        return pi != null;
     }
 
 }
