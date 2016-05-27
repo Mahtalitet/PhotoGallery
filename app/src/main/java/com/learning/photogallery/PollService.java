@@ -25,7 +25,7 @@ public class PollService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        
+
         if (!BackgroundTester.isNetworkAvailable(this)) return;
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
