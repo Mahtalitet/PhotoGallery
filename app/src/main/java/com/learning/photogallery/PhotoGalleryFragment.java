@@ -24,6 +24,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.learning.photogallery.gallery.Gallery;
 import com.learning.photogallery.gallery.GalleryFactory;
@@ -249,10 +250,10 @@ public class PhotoGalleryFragment extends Fragment {
 
         MenuItem toggleItem = menu.findItem(R.id.menu_item_toggle_polling);
         if (!PollService.isServiceAlarmOn(getActivity())) {
-            toggleItem.setTitle(R.string.start_polling);
+            toggleItem.setTitle(R.string.stop_polling);
             toggleItem.setIcon(R.drawable.ic_sync);
         } else {
-            toggleItem.setTitle(R.string.stop_polling);
+            toggleItem.setTitle(R.string.start_polling);
             toggleItem.setIcon(R.drawable.ic_sync_disabled);
         }
     }

@@ -7,4 +7,6 @@
     <string name="stop_polling">Stop polling</string>
     <string name="new_pictures_title">New FlickrGallery Pictures</string>
     <string name="new_pictures_text">You have new pictures in FlickrGallery.</string>
+    <string name="toast_polling_start">Polling of new images was START.</string>
+    <string name="toast_polling_stop">Polling of new images was STOP.</string>
 </resources>

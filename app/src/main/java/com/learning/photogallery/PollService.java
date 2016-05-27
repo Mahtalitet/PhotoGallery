@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.learning.photogallery.gallery.Gallery;
 import com.learning.photogallery.gallery.GalleryFactory;
@@ -68,10 +69,12 @@ public class PollService extends IntentService {
         if (isOn) {
             alarmManager.setRepeating(AlarmManager.RTC,
                     System.currentTimeMillis(), POLL_INTERVAL, pi);
+            Toast.makeText(context, R.string.toast_polling_start, Toast.LENGTH_SHORT).show();
             Log.i(TAG, "Polling started.");
         } else {
             alarmManager.cancel(pi);
             pi.cancel();
+            Toast.makeText(context, R.string.toast_polling_stop, Toast.LENGTH_SHORT).show();
             Log.i(TAG, "Polling stopped.");
         }
     }
