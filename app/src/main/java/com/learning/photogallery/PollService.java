@@ -22,6 +22,8 @@ import java.util.ArrayList;
 public class PollService extends IntentService {
     private static final String TAG = "PollService";
     private static final int POLL_INTERVAL = 1000 * 60 * 5;
+    public static final String PREF_IS_ALARM_ON = "isAlarmOn";
+    public static final String ACTION_SHOW_NOTIFICATION = "com.learning.photogallery.SHOW_NOTIFICATION";
 
     public PollService() {
         super(TAG);
@@ -64,10 +66,8 @@ public class PollService extends IntentService {
                     .setContentIntent(pi);
 
             NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
             notificationManager.notify(0, notificationCompatBuilder.build());
-
-
+            sendBroadcast(new Intent(ACTION_SHOW_NOTIFICATION));
         } else {
             Log.i(TAG, "Get an old result: "+resultId);
         }
@@ -96,6 +96,11 @@ public class PollService extends IntentService {
             Toast.makeText(context, R.string.toast_polling_stop, Toast.LENGTH_SHORT).show();
             Log.i(TAG, "Polling stopped.");
         }
+
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean(PREF_IS_ALARM_ON, isOn)
+                .commit();
     }
 
     public static boolean isServiceAlarmOn(Context context) {

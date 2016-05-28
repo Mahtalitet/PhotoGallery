@@ -31,7 +31,7 @@ import com.learning.photogallery.gallery.GalleryFactory;
 import com.learning.photogallery.gallery.GalleryItem;
 import java.util.ArrayList;
 
-public class PhotoGalleryFragment extends Fragment {
+public class PhotoGalleryFragment extends VisibleFragment {
     public static final String TAG = "PhotoGalleryFragment";
     public static final int PHOTO_GALLERY_GRID_COUNT = 2;
 
