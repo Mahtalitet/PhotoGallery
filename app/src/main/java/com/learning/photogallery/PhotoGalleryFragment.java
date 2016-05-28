@@ -289,5 +289,4 @@ public class PhotoGalleryFragment extends VisibleFragment {
                 return super.onOptionsItemSelected(item);
         }
     }
-
 }

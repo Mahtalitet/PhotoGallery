@@ -1,5 +1,6 @@
 package com.learning.photogallery;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.Notification;
@@ -66,9 +67,7 @@ public class PollService extends IntentService {
                     .setDefaults(Notification.DEFAULT_SOUND)
                     .setContentIntent(pi);
 
-            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            notificationManager.notify(0, notificationCompatBuilder.build());
-            sendBroadcast(new Intent(ACTION_SHOW_NOTIFICATION), PERM_PRIVATE);
+           showBackgroundNotification(0, notificationCompatBuilder.build());
         } else {
             Log.i(TAG, "Get an old result: "+resultId);
         }
@@ -109,6 +108,14 @@ public class PollService extends IntentService {
         PendingIntent pi = PendingIntent.getService(context, 0, i, PendingIntent.FLAG_NO_CREATE);
 
         return pi != null;
+    }
+
+    private void showBackgroundNotification(int requestCode, Notification notification) {
+        Intent i = new Intent(ACTION_SHOW_NOTIFICATION);
+        i.putExtra("REQUEST_CODE", requestCode);
+        i.putExtra("NOTIFICATION", notification);
+
+        sendOrderedBroadcast(i, PERM_PRIVATE, null, null, Activity.RESULT_OK, null, null);
     }
 
 }

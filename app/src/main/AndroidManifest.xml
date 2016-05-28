@@ -36,9 +36,20 @@
             android:name=".PollService"
             android:exported="false" />
 
-        <receiver android:name=".StartupReceiver">
+        <receiver
+            android:name=".StartupReceiver"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".NotificationReceiver"
+            android:exported="false">
+
+            <intent-filter android:priority="-999">
+                <action android:name="com.learning.photogallery.SHOW_NOTIFICATION" />
             </intent-filter>
         </receiver>
     </application>
