@@ -249,7 +249,7 @@ public class PhotoGalleryFragment extends Fragment {
         super.onPrepareOptionsMenu(menu);
 
         MenuItem toggleItem = menu.findItem(R.id.menu_item_toggle_polling);
-        if (!PollService.isServiceAlarmOn(getActivity())) {
+        if (PollService.isServiceAlarmOn(getActivity())) {
             toggleItem.setTitle(R.string.stop_polling);
             toggleItem.setIcon(R.drawable.ic_sync);
         } else {
