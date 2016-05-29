@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.learning.photogallery.BackgroundTester;
+
 import java.util.ArrayList;
 
 public class GalleryFactory {
@@ -61,14 +63,18 @@ public class GalleryFactory {
 
     public void makeToastAboutPagesCount() {
 
-        if ((mCurrentRequestType == Gallery.FetchingType.RECENT) && (mGallery.getCurrentPage() == 1)) {
-            Toast.makeText(mContext, "All pages with recent photos: "+mGallery.getPages(), Toast.LENGTH_SHORT).show();
-        } else if ((mCurrentRequestType == Gallery.FetchingType.RECENT) && (mGallery.getCurrentPage() > 1) && (mGallery.getCurrentPage() <= mGallery.getPages())) {
-            Toast.makeText(mContext, "Current gallery page: "+mGallery.getCurrentPage(), Toast.LENGTH_SHORT).show();
-        } else if ((mCurrentRequestType == Gallery.FetchingType.SEARCH) && (mGallery.getCurrentPage() == 1)) {
-            Toast.makeText(mContext, "Pages with searched photos: "+mGallery.getPages(), Toast.LENGTH_SHORT).show();
-        } else if ((mCurrentRequestType == Gallery.FetchingType.SEARCH) && (mGallery.getCurrentPage() > 1) && (mGallery.getCurrentPage() <= mGallery.getPages())) {
-            Toast.makeText(mContext, "Current request's page: "+mGallery.getCurrentPage(), Toast.LENGTH_SHORT).show();
+        if (BackgroundTester.isNetworkAvailable(mContext)) {
+            if ((mCurrentRequestType == Gallery.FetchingType.RECENT) && (mGallery.getCurrentPage() == 1)) {
+                Toast.makeText(mContext, "All pages with recent photos: "+mGallery.getPages(), Toast.LENGTH_SHORT).show();
+            } else if ((mCurrentRequestType == Gallery.FetchingType.RECENT) && (mGallery.getCurrentPage() > 1) && (mGallery.getCurrentPage() <= mGallery.getPages())) {
+                Toast.makeText(mContext, "Current gallery page: "+mGallery.getCurrentPage(), Toast.LENGTH_SHORT).show();
+            } else if ((mCurrentRequestType == Gallery.FetchingType.SEARCH) && (mGallery.getCurrentPage() == 1)) {
+                Toast.makeText(mContext, "Pages with searched photos: "+mGallery.getPages(), Toast.LENGTH_SHORT).show();
+            } else if ((mCurrentRequestType == Gallery.FetchingType.SEARCH) && (mGallery.getCurrentPage() > 1) && (mGallery.getCurrentPage() <= mGallery.getPages())) {
+                Toast.makeText(mContext, "Current request's page: "+mGallery.getCurrentPage(), Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(mContext, "Network is unavailable.", Toast.LENGTH_SHORT).show();
         }
     }
 

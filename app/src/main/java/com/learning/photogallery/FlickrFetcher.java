@@ -22,6 +22,8 @@ public class FlickrFetcher {
 
     public static final String TAG = "FlickrFetcher";
     public static final String PREF_SEARCH_QUERY = "searchQuery";
+    public static final String PREF_LAST_RESULT_ID = "lastResultId";
+
     private static final String ENDPOINT = "https://api.flickr.com/services/rest/";
     private static final String API_KEY = "d71c15eae0df48451eb9114e718b952e";
     private static final String METHOD_GET_RECENT = "flickr.photos.getRecent";
@@ -142,7 +144,7 @@ public class FlickrFetcher {
                 String allPages = parser.getAttributeValue(null, "pages");
                 Log.i(TAG, "Parsed pages: "+allPages);
                 mPages = Integer.parseInt(allPages);
-                Log.i(TAG, "Get pages:"+mPages);
+                Log.i(TAG, "Get pages: "+mPages);
             }
 
             if (eventType == XmlPullParser.START_TAG

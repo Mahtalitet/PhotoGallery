@@ -1,13 +1,10 @@
 package com.learning.photogallery;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 
 import com.bumptech.glide.Glide;
@@ -36,7 +33,7 @@ public class MyFlickrPhotoRecyclerViewAdapter extends RecyclerView.Adapter<MyFli
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
         Glide.with(holder.mImageView.getContext())
-                .load(holder.mItem.getmUrl())
+                .load(holder.mItem.getUrl())
                 .crossFade()
                 .centerCrop()
                 .placeholder(R.drawable.ic_collections)

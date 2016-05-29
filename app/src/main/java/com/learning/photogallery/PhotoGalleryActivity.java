@@ -30,7 +30,7 @@ public class PhotoGalleryActivity extends SingleFragmentActivity implements Phot
 
     @Override
     public void onListFragmentInteraction(GalleryItem item) {
-        Log.i(TAG, "Clicked "+item.getmId());
+        Log.i(TAG, "Clicked "+item.getId());
 
     }
 
