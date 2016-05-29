@@ -12,4 +12,4 @@ With this app you can:
 
 From the book | My solution
 ------------ | -------------
-![Image of Yaktocat](http://s018.radikal.ru/i503/1605/1f/a0bb406a5da8.png) | ![Image of Yaktocat](http://s019.radikal.ru/i629/1605/9e/a2854675890e.png)
+![PhotoGallery Screenshot](http://s018.radikal.ru/i503/1605/1f/a0bb406a5da8.png) | ![PhotoGallery Screenshot](http://s019.radikal.ru/i629/1605/9e/a2854675890e.png)
