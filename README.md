@@ -1,5 +1,5 @@
 # Title: PhotoGallery
-5th educational Android app. It from the «Android Programming: The Big Nerd Ranch Guide» book by Bill Phillips and Brian Hardy, 2013 year. 
+6th educational Android app. It from the «Android Programming: The Big Nerd Ranch Guide» book by Bill Phillips and Brian Hardy, 2013 year. 
 With my own solution of exercises.
 
 ## Description
