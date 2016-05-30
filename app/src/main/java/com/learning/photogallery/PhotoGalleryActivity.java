@@ -2,6 +2,7 @@ package com.learning.photogallery;
 
 import android.app.SearchManager;
 import android.content.Intent;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -31,7 +32,8 @@ public class PhotoGalleryActivity extends SingleFragmentActivity implements Phot
     @Override
     public void onListFragmentInteraction(GalleryItem item) {
         Log.i(TAG, "Clicked "+item.getId());
-
+        Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(item.getPageUrl()));
+        startActivity(i);
     }
 
     @Override
