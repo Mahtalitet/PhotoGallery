@@ -1,14 +1,16 @@
 package com.learning.photogallery.gallery;
 
 public class GalleryItem {
-    public String mId;
-    public String mUrl;
-    public String mCaption;
+    private String mId;
+    private String mUrl;
+    private String mCaption;
+    private String mPageUrl;
 
-    public GalleryItem(String mId, String mUrl, String mCaption) {
+    public GalleryItem(String mId, String mUrl, String mCaption, String mPageUrl) {
         this.mId = mId;
         this.mUrl = mUrl;
         this.mCaption = mCaption;
+        this.mPageUrl = mPageUrl;
     }
 
     @Override
@@ -38,5 +40,13 @@ public class GalleryItem {
 
     public void setCaption(String mCaption) {
         this.mCaption = mCaption;
+    }
+
+    public String getPageUrl() {
+        return mPageUrl;
+    }
+
+    public void setPageUrl(String pageUrl) {
+        mPageUrl = pageUrl;
     }
 }

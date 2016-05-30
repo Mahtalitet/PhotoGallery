@@ -152,12 +152,22 @@ public class FlickrFetcher {
                 String id = parser.getAttributeValue(null, "id");
                 String caption = parser.getAttributeValue(null, "title");
                 String smallUrl = parser.getAttributeValue(null, EXTRA_SMALL_URL);
+                String ownerId = parser.getAttributeValue(null, "owner");
+                String urlToFullPage = generateFullUrl(ownerId, id);
+                Log.i(TAG, "Url to full page: "+urlToFullPage);
 
-                items.add(new GalleryItem(id, smallUrl, caption));
+                items.add(new GalleryItem(id, smallUrl, caption, urlToFullPage));
             }
 
             eventType = parser.next();
         }
+    }
+
+    private String generateFullUrl(String ownerId, String userId) {
+        return Uri.parse("https://www.flickr.com/photos").buildUpon()
+                .appendPath(ownerId)
+                .appendPath(userId)
+                .build().toString();
     }
 
     public int getAllPages() {
