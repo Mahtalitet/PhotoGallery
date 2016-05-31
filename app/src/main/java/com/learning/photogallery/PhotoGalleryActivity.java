@@ -32,7 +32,8 @@ public class PhotoGalleryActivity extends SingleFragmentActivity implements Phot
     @Override
     public void onListFragmentInteraction(GalleryItem item) {
         Log.i(TAG, "Clicked "+item.getId());
-        Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(item.getPageUrl()));
+        Intent i = new Intent(this, PhotoPageActivity.class);
+        i.setData(Uri.parse(item.getPageUrl()));
         startActivity(i);
     }
 
